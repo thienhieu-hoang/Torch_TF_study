@@ -6,6 +6,7 @@ Programmed by Aladdin Persson <aladdin.persson at hotmail dot com>
 * 2022-12-21: Small revision of code, checked that it works with latest PyTorch version
 """
 
+#%%
 import torch
 from dataset import HorseZebraDataset
 import sys
@@ -32,10 +33,10 @@ def train_fn(
         horse = horse.to(config.DEVICE)
 
         # Train Discriminators H and Z
-        with torch.cuda.amp.autocast():
+        with torch.cuda.amp.autocast():     # float16
             fake_horse = gen_H(zebra)
             D_H_real = disc_H(horse)
-            D_H_fake = disc_H(fake_horse.detach())
+            D_H_fake = disc_H(fake_horse.detach()) # check what is with requires_grad now
             H_reals += D_H_real.mean().item()
             H_fakes += D_H_fake.mean().item()
             D_H_real_loss = mse(D_H_real, torch.ones_like(D_H_real))
@@ -44,13 +45,14 @@ def train_fn(
 
             fake_zebra = gen_Z(horse)
             D_Z_real = disc_Z(zebra)
-            D_Z_fake = disc_Z(fake_zebra.detach())
+            D_Z_fake = disc_Z(fake_zebra.detach()) # check waht is with requires_grad
             D_Z_real_loss = mse(D_Z_real, torch.ones_like(D_Z_real))
             D_Z_fake_loss = mse(D_Z_fake, torch.zeros_like(D_Z_fake))
             D_Z_loss = D_Z_real_loss + D_Z_fake_loss
 
             # put it togethor
             D_loss = (D_H_loss + D_Z_loss) / 2
+            
 
         opt_disc.zero_grad()
         d_scaler.scale(D_loss).backward()
@@ -72,7 +74,7 @@ def train_fn(
             cycle_horse_loss = l1(horse, cycle_horse)
 
             # identity loss (remove these for efficiency if you set lambda_identity=0)
-            identity_zebra = gen_Z(zebra)
+            identity_zebra = gen_Z(zebra)   # input: Zebra -> generate Zebra -> shouldn't do anything
             identity_horse = gen_H(horse)
             identity_zebra_loss = l1(zebra, identity_zebra)
             identity_horse_loss = l1(horse, identity_horse)
@@ -91,21 +93,26 @@ def train_fn(
         g_scaler.scale(G_loss).backward()
         g_scaler.step(opt_gen)
         g_scaler.update()
+        
 
         if idx % 200 == 0:
-            save_image(fake_horse * 0.5 + 0.5, f"saved_images/horse_{idx}.png")
-            save_image(fake_zebra * 0.5 + 0.5, f"saved_images/zebra_{idx}.png")
+            saved_images_horse = config.FILE_PATH +"/results/saved_img/horse_{idx}.png"
+            saved_images_zebra = config.FILE_PATH +"/results/saved_img/zebra_{idx}.png"
+            save_image(fake_horse * 0.5 + 0.5, saved_images_horse)
+            save_image(fake_zebra * 0.5 + 0.5, saved_images_zebra)
+            # save_image(fake_horse * 0.5 + 0.5, f"saved_images/horse_{idx}.png")
+            # save_image(fake_zebra * 0.5 + 0.5, f"saved_images/zebra_{idx}.png")
 
         loop.set_postfix(H_real=H_reals / (idx + 1), H_fake=H_fakes / (idx + 1))
 
 
 def main():
-    disc_H = Discriminator(in_channels=3).to(config.DEVICE)
-    disc_Z = Discriminator(in_channels=3).to(config.DEVICE)
-    gen_Z = Generator(img_channels=3, num_residuals=9).to(config.DEVICE)
+    disc_H = Discriminator(in_channels=3).to(config.DEVICE)                 # Discriminator for fake or true Horse
+    disc_Z = Discriminator(in_channels=3).to(config.DEVICE)                 # Discriminator for fake or true Zebra
+    gen_Z = Generator(img_channels=3, num_residuals=9).to(config.DEVICE)    # generate zebra
     gen_H = Generator(img_channels=3, num_residuals=9).to(config.DEVICE)
     opt_disc = optim.Adam(
-        list(disc_H.parameters()) + list(disc_Z.parameters()),
+        list(disc_H.parameters()) + list(disc_Z.parameters()),  # concatenate
         lr=config.LEARNING_RATE,
         betas=(0.5, 0.999),
     )
@@ -192,6 +199,6 @@ def main():
             save_checkpoint(disc_H, opt_disc, filename=config.CHECKPOINT_CRITIC_H)
             save_checkpoint(disc_Z, opt_disc, filename=config.CHECKPOINT_CRITIC_Z)
 
-
+#%%
 if __name__ == "__main__":
     main()

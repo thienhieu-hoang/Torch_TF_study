@@ -1,3 +1,4 @@
+#%% 
 """
 Discriminator and Generator implementation from DCGAN paper,
 with removed Sigmoid() as output from Discriminator (and therefor
@@ -11,7 +12,7 @@ Programmed by Aladdin Persson <aladdin.persson at hotmail dot com>
 import torch
 import torch.nn as nn
 
-
+#%%
 class Discriminator(nn.Module):
     def __init__(self, channels_img, features_d):
         super(Discriminator, self).__init__()
@@ -99,5 +100,6 @@ def test():
     assert gen(z).shape == (N, in_channels, H, W), "Generator test failed"
     print("Success, tests passed!")
 
+#%%
 if __name__ == "__main__":
     test()

@@ -1,3 +1,4 @@
+#%%
 """
 Generator model for CycleGAN
 
@@ -8,6 +9,7 @@ Programmed by Aladdin Persson <aladdin.persson at hotmail dot com>
 
 import torch
 import torch.nn as nn
+from torchinfo import summary
 
 
 class ConvBlock(nn.Module):
@@ -30,6 +32,7 @@ class ResidualBlock(nn.Module):
         super().__init__()
         self.block = nn.Sequential(
             ConvBlock(channels, channels, kernel_size=3, padding=1),
+
             ConvBlock(channels, channels, use_act=False, kernel_size=3, padding=1),
         )
 
@@ -111,13 +114,17 @@ class Generator(nn.Module):
         return torch.tanh(self.last(x))
 
 
+#%%
 def test():
     img_channels = 3
     img_size = 256
     x = torch.randn((2, img_channels, img_size, img_size))
     gen = Generator(img_channels, 9)
     print(gen(x).shape)
+    print(summary(gen, (2,3,256,256)))
+    
 
-
+#%%
 if __name__ == "__main__":
     test()
+# %%

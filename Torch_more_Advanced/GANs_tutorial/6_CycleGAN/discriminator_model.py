@@ -1,3 +1,4 @@
+#%%
 """
 Discriminator model for CycleGAN
 
@@ -8,6 +9,7 @@ Programmed by Aladdin Persson <aladdin.persson at hotmail dot com>
 
 import torch
 import torch.nn as nn
+from torchvision import models
 
 
 class Block(nn.Module):
@@ -17,9 +19,9 @@ class Block(nn.Module):
             nn.Conv2d(
                 in_channels,
                 out_channels,
-                4,
+                4, # kernel_size
                 stride,
-                1,
+                1, # padding
                 bias=True,
                 padding_mode="reflect",
             ),
@@ -56,7 +58,7 @@ class Discriminator(nn.Module):
         layers.append(
             nn.Conv2d(
                 in_channels,
-                1,
+                1, # feature: Real/Fake
                 kernel_size=4,
                 stride=1,
                 padding=1,
@@ -69,7 +71,7 @@ class Discriminator(nn.Module):
         x = self.initial(x)
         return torch.sigmoid(self.model(x))
 
-
+#%%
 def test():
     x = torch.randn((5, 3, 256, 256))
     model = Discriminator(in_channels=3)
@@ -79,3 +81,5 @@ def test():
 
 if __name__ == "__main__":
     test()
+
+# %%

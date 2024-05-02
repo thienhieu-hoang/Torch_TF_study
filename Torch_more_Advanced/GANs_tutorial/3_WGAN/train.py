@@ -1,3 +1,4 @@
+#%%
 """
 Training of DCGAN network with WGAN loss
 
@@ -6,6 +7,7 @@ Programmed by Aladdin Persson <aladdin.persson at hotmail dot com>
 * 2022-12-20: Small revision of code, checked that it works with latest PyTorch version
 """
 
+#%%
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -16,9 +18,15 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 from torch.utils.tensorboard import SummaryWriter
 from model import Discriminator, Generator, initialize_weights
+import os
 
+#%%
+FILE_PATH = os.path.dirname(os.path.abspath(__file__))
+print(FILE_PATH)
+
+#%%
 # Hyperparameters etc
-device = "cuda" if torch.cuda.is_available() else "cpu"
+device = "cuda:1" if torch.cuda.is_available() else "cpu"
 LEARNING_RATE = 5e-5
 BATCH_SIZE = 64
 IMAGE_SIZE = 64
@@ -30,6 +38,7 @@ FEATURES_GEN = 64
 CRITIC_ITERATIONS = 5
 WEIGHT_CLIP = 0.01
 
+#%%
 transforms = transforms.Compose(
     [
         transforms.Resize(IMAGE_SIZE),
@@ -40,9 +49,11 @@ transforms = transforms.Compose(
     ]
 )
 
-dataset = datasets.MNIST(root="dataset/", transform=transforms, download=True)
+dataset = datasets.MNIST(root=FILE_PATH+"../../dataset/", transform=transforms, download=True)
 #comment mnist and uncomment below if you want to train on CelebA dataset
 #dataset = datasets.ImageFolder(root="celeb_dataset", transform=transforms)
+
+#%%
 loader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
 
 # initialize gen and disc/critic
@@ -61,9 +72,11 @@ writer_real = SummaryWriter(f"logs/real")
 writer_fake = SummaryWriter(f"logs/fake")
 step = 0
 
+#%%
 gen.train()
 critic.train()
 
+#%%
 for epoch in range(NUM_EPOCHS):
     # Target labels not needed! <3 unsupervised
     for batch_idx, (data, _) in enumerate(tqdm(loader)):

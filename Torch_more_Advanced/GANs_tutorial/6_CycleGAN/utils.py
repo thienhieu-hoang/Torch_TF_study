@@ -1,9 +1,13 @@
+#%%
 import random, torch, os, numpy as np
 import torch.nn as nn
 import config
 import copy
 
-def save_checkpoint(model, optimizer, filename="my_checkpoint.pth.tar"):
+FILE_PATH = os.path.dirname(os.path.abspath(__file__))
+
+#%%
+def save_checkpoint(model, optimizer, filename=FILE_PATH + "/checkpoints/my_checkpoint.pth.tar"):
     print("=> Saving checkpoint")
     checkpoint = {
         "state_dict": model.state_dict(),

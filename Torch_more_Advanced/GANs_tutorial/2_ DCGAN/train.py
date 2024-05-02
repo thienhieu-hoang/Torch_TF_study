@@ -1,3 +1,4 @@
+#%%
 """
 Training of DCGAN network on MNIST dataset with Discriminator
 and Generator imported from models.py
@@ -16,6 +17,10 @@ import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from model import Discriminator, Generator, initialize_weights
+import os
+
+# This will be the path to your .py file
+FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 # Hyperparameters etc.
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -38,11 +43,15 @@ transforms = transforms.Compose(
     ]
 )
 
+#%%
+root_path = os.path.join(FILE_PATH, "./dataset/")
 # If you train on MNIST, remember to set channels_img to 1
 dataset = datasets.MNIST(
-    root="dataset/", train=True, transform=transforms, download=True
+    root = root_path, train=True, transform=transforms, download=True
+    # root="./dataset/", train=True, transform=transforms, download=True
 )
 
+#%%
 # comment mnist above and uncomment below if train on CelebA
 # dataset = datasets.ImageFolder(root="celeb_dataset", transform=transforms)
 dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
@@ -104,3 +113,4 @@ for epoch in range(NUM_EPOCHS):
                 writer_fake.add_image("Fake", img_grid_fake, global_step=step)
 
             step += 1
+# %%

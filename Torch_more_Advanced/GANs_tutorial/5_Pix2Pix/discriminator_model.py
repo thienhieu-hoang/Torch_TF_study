@@ -1,7 +1,8 @@
+#%%
 import torch
 import torch.nn as nn
 
-
+#%%
 class CNNBlock(nn.Module):
     def __init__(self, in_channels, out_channels, stride):
         super(CNNBlock, self).__init__()
@@ -22,7 +23,7 @@ class Discriminator(nn.Module):
         super().__init__()
         self.initial = nn.Sequential(
             nn.Conv2d(
-                in_channels * 2,
+                in_channels * 2, # x, y <- concatenate along the channels
                 features[0],
                 kernel_size=4,
                 stride=2,
@@ -48,7 +49,7 @@ class Discriminator(nn.Module):
 
         self.model = nn.Sequential(*layers)
 
-    def forward(self, x, y):
+    def forward(self, x, y): # x, y -- training, target
         x = torch.cat([x, y], dim=1)
         x = self.initial(x)
         x = self.model(x)
@@ -63,6 +64,8 @@ def test():
     print(model)
     print(preds.shape)
 
-
+#%%
 if __name__ == "__main__":
     test()
+
+# %%

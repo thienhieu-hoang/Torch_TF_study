@@ -1,10 +1,13 @@
 import torch
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
+import os 
 
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-TRAIN_DIR = "data/train"
-VAL_DIR = "data/val"
+FILE_PATH = os.path.dirname(os.path.abspath(__file__))
+
+DEVICE = "cuda:1" if torch.cuda.is_available() else "cpu"
+TRAIN_DIR = FILE_PATH+"/data/maps/maps/train"
+VAL_DIR =  FILE_PATH+"/data/maps/maps/val"
 LEARNING_RATE = 2e-4
 BATCH_SIZE = 16
 NUM_WORKERS = 2
