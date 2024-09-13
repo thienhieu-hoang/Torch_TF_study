@@ -1,6 +1,7 @@
 #%%
 import torch
 import torch.nn as nn
+from torchsummary import summary
 
 #%%
 class CNNBlock(nn.Module):
@@ -63,6 +64,7 @@ def test():
     preds = model(x, y)
     print(model)
     print(preds.shape)
+    # summary(model, input_size=[(1,3,256,256), (1,3,256,256)])
 
 #%%
 if __name__ == "__main__":

@@ -82,7 +82,7 @@ for epoch in range(NUM_EPOCHS):
         ### Train Discriminator: max log(D(x)) + log(1 - D(G(z)))
         disc_real = disc(real).reshape(-1)
         loss_disc_real = criterion(disc_real, torch.ones_like(disc_real))
-        disc_fake = disc(fake.detach()).reshape(-1)
+        disc_fake = disc(fake.detach()).reshape(-1)  # ----- Need this detach so that not get error -----
         loss_disc_fake = criterion(disc_fake, torch.zeros_like(disc_fake))
         loss_disc = (loss_disc_real + loss_disc_fake) / 2
         disc.zero_grad()
@@ -90,7 +90,7 @@ for epoch in range(NUM_EPOCHS):
         opt_disc.step()
 
         ### Train Generator: min log(1 - D(G(z))) <-> max log(D(G(z))
-        output = disc(fake).reshape(-1)
+        output = disc(fake).reshape(-1)  # ------------need to define again, DO NOT reuse disc_fake 
         loss_gen = criterion(output, torch.ones_like(output))
         gen.zero_grad()
         loss_gen.backward()

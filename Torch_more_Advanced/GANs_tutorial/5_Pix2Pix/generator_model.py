@@ -1,6 +1,7 @@
 #%%
 import torch
 import torch.nn as nn
+from torchsummary import summary
 
 
 class Block(nn.Module):
@@ -77,10 +78,12 @@ class Generator(nn.Module):
 
 #%%
 def test():
-    x = torch.randn((1, 3, 256, 256))
+    x = torch.randn((1, 3, 256, 256))  # (samples, channels, H, W)
     model = Generator(in_channels=3, features=64)
     preds = model(x)
     print(preds.shape)
+    print(model)
+    # summary(model, input_size=(1,3,256,256))
 
 #%%
 if __name__ == "__main__":
